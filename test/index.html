@@ -1,18 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Lobby</title>
-    <!-- Připojení k Socket.IO -->
+    <title>Game</title>
     <script src="/socket.io/socket.io.js"></script>
-    <!-- Připojení k clientside JavaScript souboru -->
     <script src="client.js"></script>
 </head>
+
 <body>
-    <h1>Game Lobby</h1>
-    <button onclick="createGame()">Create Game</button>
-    <button onclick="joinGame()">Join Game</button>
-    <p id="demo" ></p>
+    <div class="lobby" id="lobby">
+        <h1>Game lobby</h1>
+        <button onclick="createGame()">Create Game</button>
+        <button onclick="joinGame()">Join Game</button>
+    </div>
+    <div class="game" id="game">
+        <h1>Game</h1>
+        <button onclick="readd()">Ready</button>
+    </div>
+    <p id="info"></p>
 </body>
+
 </html>
