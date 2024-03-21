@@ -1,1 +1,1 @@
-Idk poserte se.
+Idk posrali jste se?
