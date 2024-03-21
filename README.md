@@ -1,1 +1,0 @@
-Idk posrali jste se?
