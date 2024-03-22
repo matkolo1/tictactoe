@@ -36,7 +36,7 @@ io.on('connection', (socket) => {
       console.log(games[gameId])
     } else {
       console.log(`Game ${gameId} full.`)
-      socket.emit('full', true, games[gameId].name)
+      socket.emit('full', games[gameId].name)
     }
   });
 
@@ -46,6 +46,7 @@ io.on('connection', (socket) => {
     else games[gameId].ready2 = true;
     io.to(gameId).emit('ready', mas, playerName);
     if (games[gameId].ready1 && games[gameId].ready2) {
+      console.log(games[gameId].name, 'starting game')
       io.to(gameId).emit('start', JSON.stringify(games[gameId]))
     }
   })
@@ -61,4 +62,3 @@ io.on('connection', (socket) => {
 function generateGameId() {
   return Math.random().toString(36).substr(2, 9);
 }
-

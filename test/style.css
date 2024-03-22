@@ -1,0 +1,99 @@
+html {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+}
+
+body,
+.game {
+  text-align: center;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  background-color: #0f1523;
+  overflow-x: hidden;
+  overflow-Y: hidden;
+  width: 100%;
+  color: white;
+}
+
+p {
+  border-radius: 10px;
+  padding: 10px;
+  background-color: rgb(53, 53, 53);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 5px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: rgb(67, 67, 67);
+  color: azure;
+  text-justify: center;
+  text-align: center;
+  text-size-adjust: auto;
+}
+
+.cell {
+  width: 50px;
+  height: 50px;
+  border: 1px solid #000000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.cell.clicked {
+  background-color: rgb(28, 77, 28);
+}
+
+.cell:hover {
+  background-color: #3b0680;
+}
+
+#resetButton {
+  display: flex;
+  margin: 20px auto;
+  border-radius: 5px;
+}
+
+.input {
+  margin: 10px;
+  width: 50px;
+
+  border: 1px solid #0000007a;
+  border-radius: 5px;
+  background-color: #0f1523;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.turn {
+  text-align: center;
+  display: flex;
+  margin: 10px;
+  padding: 10px;
+  justify-content: center;
+  background-color: rgb(69, 69, 69);
+  border-radius: 10px;
+}
+
+button {
+  border-radius: 5px;
+  border: outset;
+}
+
+button:active {
+  border: inset;
+}
