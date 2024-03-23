@@ -14,28 +14,29 @@
 </head>
 
 <body>
-	<div class="lobby" id="lobby">
+	<div id="lobby">
 		<h1>Game lobby</h1>
 		<button onclick="createGame()">Create Game</button>
 		<button onclick="joinGame()">Join Game</button>
 	</div>
-	<div class="ready" id="ready" style='display: none'>
+	<div id="ready" style='display: none'>
 		<button onclick="readd()">Ready</button>
 	</div>
 	<p id="info"></p>
-	<div id='game' class='game' style='display:none'>
+
+	<div id="master" style="display: none;">
 		<p>
 			Size of board:
-			<input class="input" id="size" type="number" value="3" min="3"><button
-				onclick="setSize()">Submit</button></input><br>
+			<input class="input" id="size" type="number" value="3" min="3"></input><br>
 			How much cells to win:
-			<input class="input" id="winSize" type="number" onchange="winSizeColor()" value="3" min="1" max="3"><button
-				onclick="setWinSize()">Submit</button></input>
+			<input class="input" id="winSize" type="number" value="3" min="1" max="3"></input>
 		</p>
+	</div>
+	<div id='game' class='game' style='display:none'>
 		<div class="turn" id="turn"></div>
 		<div class="grid" id="grid">
-			<button id="resetButton">Reset</button>
-		</div>
+		</div> 
+		<button id="resetButton" id="master">Reset</button>
 	</div>
 </body>
 

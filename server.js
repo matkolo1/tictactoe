@@ -34,20 +34,23 @@ io.on('connection', (socket) => {
       socket.join(gameId);
       io.to(gameId).emit('playerJoined', playerName, games[gameId].name);
       console.log(games[gameId])
-    } else {
+    } else if (games[gameId] !== undefined) {
       console.log(`Game ${gameId} full.`)
       socket.emit('full', games[gameId].name)
+    } else {
+      console.log(`Game ${gameId} doesn't exist.`)
+      socket.emit('noexist', gameId)
     }
   });
 
-  socket.on('ready', (gameId, mas, playerName) => {
+  socket.on('ready', (gameId, mas, playerName, size, winSize) => {
     console.log(`Player ${playerName} (${mas}) is ready.`)
     if (mas) games[gameId].ready1 = true;
     else games[gameId].ready2 = true;
     io.to(gameId).emit('ready', mas, playerName);
     if (games[gameId].ready1 && games[gameId].ready2) {
       console.log(games[gameId].name, 'starting game')
-      io.to(gameId).emit('start', JSON.stringify(games[gameId]))
+      io.to(gameId).emit('start', JSON.stringify(games[gameId]), size, winSize)
     }
   })
 
@@ -56,6 +59,10 @@ io.on('connection', (socket) => {
     console.log('Client disconnected:', socket.id);
   });
 
+  socket.on('play', (gameId, cellId) => {
+    console.log('played')
+    io.to(gameId).emit('play', cellId);
+  })
 });
 
 // Funkce pro generování náhodného ID hry
