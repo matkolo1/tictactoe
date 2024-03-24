@@ -6,6 +6,7 @@ var game = {
   playerName: null,
   enemyName: null,
   start: 0,
+  score: [0, 0]
 };
 var master = true;
 var ready = false;
@@ -133,16 +134,34 @@ socket.on("start", (games) => {
   document.getElementById("ready").style.display = "none";
   document.getElementById('master').style.display = 'none';
   document.getElementById("game").style.display = "flex";
+  if (master) document.getElementById('resetBtn').style.display = 'block';
   console.log(`gridTemplateColumns: repeat(${size}, 50px);`)
   document.getElementById("grid").style = `grid-template-columns: repeat(${size}, 50px);`;
   createGrid(grid);
   addClickListeners(grid);
 });
 
+socket.on('win', (score) => {
+  game.score = score
+})
+
+socket.on('reset', () => {
+  document.getElementById('grid').innerHTML = ''
+  board = [];
+  turns = 0;
+  createGrid()
+  addClickListeners()
+  
+})
+
 function s() {
   let sz = document.getElementById('size').value
   document.getElementById('winSize').max = sz
   document.getElementById('winSize').value = sz
+}
+
+function rst() {
+  socket.emit('reset', game.gameId)
 }
 
 // tic tac toe script
@@ -247,6 +266,7 @@ function checkWin(board, cell) {
   const cellCol = cell.id.split("-")[2];
   const cellPlay = cell.id.split("-")[3];
   var near = 0;
+  var win = false;
 
   for (var [x, y] of directions) {
     for (let i = 1; i < winSize; i++) {
@@ -269,12 +289,24 @@ function checkWin(board, cell) {
 
     }
     if (near >= (winSize - 1)) {
-      if (playerTurn == game.start) document.getElementById("grid").innerHTML = `Player ${game.enemyName} Wins!!`;
-      else document.getElementById("grid").innerHTML = `Player ${game.playerName} Wins!!`;
-      var win = true;
-    } else near = 0;
-    if ((turns == (size ** 2) - 1) && !win) document.getElementById("grid").innerHTML = `Draw`;
+      if (playerTurn == game.start) {
+        document.getElementById("grid").innerHTML = `Player ${game.enemyName} Wins!!`;
+        if (master && !win) {
+          socket.emit('win', game.gameId, true, false);
+        }
+      } else if (!win){
+        document.getElementById("grid").innerHTML = `Player ${game.playerName} Wins!!`;
+        if (master) {
+          socket.emit('win', game.gameId, true, true);
+        }
+      }
+      win = true;
 
+    } else near = 0;
+    if ((turns == (size ** 2) - 1) && !win) {
+      document.getElementById("grid").innerHTML = `Draw`;
+      socket.emit('win', game.gameId, false);
+    }
   }
   turns++;
 }
