@@ -1,31 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-  <style>
-  </style>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>piškvorky</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap">
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Game</title>
+	<link rel='stylesheet' href='style.css'>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap">
+	<script src="socket.io/socket.io.js"></script>
+	<script src="client.js"></script>
 </head>
 
-<body id="body">
-  <p>
-    Size of board:
-    <input class="input" id="size" type="number" value="3" min="3"><button onclick="setSize()">Submit</button></input><br>
-    How much cells to win: 
-    <input class="input" id="winSize" type="number" onchange="winSizeColor()" value="3" min="1" max="3"><button onclick="setWinSize()">Submit</button></input>
-  </p>
-  <div class="turn" id="turn"></div>
-  <div class="grid" id="grid">
-    <button id="resetButton">Reset</button>
-  </div>
-  <div class="bubbles"></div>
-  <script src="script.js"></script>
+<body>
+	<div id="lobby">
+		<h1>Game lobby</h1>
+		<button onclick="createGame()">Create Game</button>
+		<button onclick="joinGame()">Join Game</button>
+	</div>
+	<div id="ready" style='display: none'>
+		<button onclick="readd()">Ready</button>
+	</div>
+	<p id="info"></p>
+
+	<div id="master" style="display: none;">
+		<p>
+			Size of board:
+			<input class="input" id="size" type="number" value="3" min="2" onchange="s()"></input><br>
+			How much cells to win:
+			<input class="input" id="winSize" type="number" value="3" min="2" max="3"></input>
+		</p>
+	</div>
+	<div id='game' class='game' style='display:none'>
+		<div class="turn" id="turn"></div>
+		<div class="grid" id="grid">
+		</div>
+		<button id="resetButton" id="master">Reset</button>
+	</div>
 </body>
 
 </html>

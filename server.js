@@ -7,7 +7,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-app.use(express.static(path.join(__dirname, 'test')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
@@ -22,9 +22,15 @@ io.on('connection', (socket) => {
   socket.on('createGame', (gameName, playerName, symbol) => {
     const gameId = generateGameId();
     socket.join(gameId);
-    games[gameId] = { player1: [playerName, symbol], player2: [], name: gameName , ready1: false, ready2: false};
+    games[gameId] = {
+      player1: [playerName, symbol],
+      player2: [], name: gameName,
+      ready1: false,
+      ready2: false,
+      size: null,
+      wSize: null,
+    };
     socket.emit('gameCreated', gameId);
-    console.log(gameId, games[gameId]);
   });
 
   // Obsluha události připojení k existující hře
@@ -33,24 +39,25 @@ io.on('connection', (socket) => {
       games[gameId].player2.push(playerName);
       socket.join(gameId);
       io.to(gameId).emit('playerJoined', playerName, games[gameId].name);
-      console.log(games[gameId])
     } else if (games[gameId] !== undefined) {
-      console.log(`Game ${gameId} full.`)
       socket.emit('full', games[gameId].name)
     } else {
-      console.log(`Game ${gameId} doesn't exist.`)
       socket.emit('noexist', gameId)
     }
   });
 
   socket.on('ready', (gameId, mas, playerName, size, winSize) => {
-    console.log(`Player ${playerName} (${mas}) is ready.`)
-    if (mas) games[gameId].ready1 = true;
+    if (mas) {
+      games[gameId].ready1 = true;
+      games[gameId]['size'] = JSON.parse(size);
+      games[gameId]['wSize'] = JSON.parse(winSize);
+      console.log(games[gameId])
+    }
     else games[gameId].ready2 = true;
     io.to(gameId).emit('ready', mas, playerName);
     if (games[gameId].ready1 && games[gameId].ready2) {
       console.log(games[gameId].name, 'starting game')
-      io.to(gameId).emit('start', JSON.stringify(games[gameId]), size, winSize)
+      io.to(gameId).emit('start', JSON.stringify(games[gameId]))
     }
   })
 
@@ -60,7 +67,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('play', (gameId, cellId) => {
-    console.log('played')
     io.to(gameId).emit('play', cellId);
   })
 });

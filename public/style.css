@@ -3,7 +3,8 @@ html {
   font-weight: 700;
 }
 
-body {
+body,
+.game {
   text-align: center;
   font-family: Arial, sans-serif;
   display: flex;
@@ -16,6 +17,7 @@ body {
   overflow-x: hidden;
   overflow-Y: hidden;
   width: 100%;
+  color: white;
 }
 
 p {
@@ -96,58 +98,6 @@ button:active {
   border: inset;
 }
 
-/* bubbles */
-
-.bubbles {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-}
-
-.bubble {
-  position: absolute;
-  background: #3E6181;
-  opacity: 0.6;
-  border-radius: 50%;
-  animation: moveBubbles 10s infinite, fadeInOut 4s infinite;
-}
-
-@keyframes moveBubbles {
-  0% {
-      transform: translateY(0) translateX(0);
-  }
-
-  50% {
-      transform: translateY(-100%) translateX(100%);
-  }
-
-  100% {
-      transform: translateY(0) translateX(0);
-  }
-}
-
-@keyframes fadeInOut {
-
-  0%,
-  100% {
-      opacity: 0.6;
-  }
-
-  50% {
-      opacity: 0.2;
-  }
-}
-
-#url-input {
-  margin-top: 20px;
-  padding: 10px;
-  width: 100%;
-  border: 1px solid #0000007a;
-  border-radius: 5px;
-  background-color: #0f1523;
-  color: #fff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+#copyUrl {
+  width: 40px;
 }

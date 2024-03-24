@@ -31,21 +31,30 @@ if (game.gameId) joinGame(true);
 
 // Obsluha události vytvoření nové hry
 socket.on("gameCreated", (gameId) => {
-  console.log("Game created:", gameId);
-  // Zobrazení odkazu na připojení k hře
   var url = window.location.href.split("index")[0];
   const joinUrl = url + "index.html?gameId=" + gameId;
   console.log("Join URL:", joinUrl);
+  let cp = document.createElement('input')
+  cp.type = 'text';
+  cp.setAttribute('readonly', 'readonly');
+  cp.id = 'copyUrl';
+  cp.value = joinUrl
+  document.getElementById('master').appendChild(cp);
   game.gameId = gameId;
   document.getElementById("info").innerHTML = `Created room ${game.gameName}(${game.gameId}) under name ${game.playerName}.`;
   document.getElementById('master').style.display = 'block';
 
   // Zde můžete provést další manipulace s odkazem (např. zobrazení na stránce)
+
+  // Copy the text inside the text field
+  document.getElementById('copyUrl').addEventListener('click', () => {
+    navigator.clipboard.writeText(joinUrl);
+  })
+
 });
 
 // Obsluha události připojení nového hráče k hře
 socket.on("playerJoined", (playerName, gameName) => {
-  console.log("Player joined:", playerName, gameName);
   game.gameName = gameName;
   document.getElementById("info").innerHTML = `Joined room ${game.gameName}(${game.gameId}) under name ${game.playerName}.`;
   document.getElementById("ready").style.display = "block";
@@ -79,7 +88,8 @@ function joinGame(id) {
 }
 
 function readd() {
-  socket.emit("ready", game.gameId, master, game.playerName, document.getElementById('size').value, document.getElementById('winSize').value);
+  if (master) socket.emit("ready", game.gameId, master, game.playerName, document.getElementById('size').value, document.getElementById('winSize').value);
+  else socket.emit("ready", game.gameId, master, game.playerName);
   ready = true;
 }
 
@@ -88,19 +98,18 @@ socket.on("ready", (mas, playerName) => {
 });
 
 socket.on("full", (gameName) => {
-  console.log(`Game ${gameName}(${game.gameId}) is full.`);
   game.gameName = gameName;
   document.getElementById("info").innerHTML = `Room ${game.gameName}(${game.gameId}) is full.`;
 });
 
 socket.on('noexist', (gameId) => {
-  console.log(gameId, 'doesnt exist');
   document.getElementById("info").innerHTML = `Game ${gameId} doesn't exist.`;
 });
 
- 
 
-socket.on("start", (games, siz, wSiz) => {startPlayer = game.playerName
+
+socket.on("start", (games) => {
+  startPlayer = game.playerName
   games = JSON.parse(games);
   console.log(game.gameName, game.gameId, "starting game");
   console.log(master, games)
@@ -117,8 +126,9 @@ socket.on("start", (games, siz, wSiz) => {startPlayer = game.playerName
       startPlayer = game.enemyName
     }
   }
-  size = siz
-  winSize = wSiz
+  size = games.size;
+  winSize = games.wSize;
+  console.log(games.size, size, games.wSize, winSize)
   document.getElementById("lobby").style.display = "none";
   document.getElementById("ready").style.display = "none";
   document.getElementById('master').style.display = 'none';
@@ -129,7 +139,11 @@ socket.on("start", (games, siz, wSiz) => {startPlayer = game.playerName
   addClickListeners(grid);
 });
 
-
+function s() {
+  let sz = document.getElementById('size').value
+  document.getElementById('winSize').max = sz
+  document.getElementById('winSize').value = sz
+}
 
 // tic tac toe script
 
