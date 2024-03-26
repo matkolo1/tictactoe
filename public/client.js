@@ -67,6 +67,7 @@ socket.on("playerJoined", (playerName, gameName) => {
 function createGame() {
   const gameName = prompt("Enter game name:");
   const playerName = prompt("Enter your name:");
+  let symbol;
   if (confirm("Want to be X")) {
     symbol = "X";
   } else {
