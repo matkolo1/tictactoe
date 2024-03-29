@@ -13,7 +13,15 @@ server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-const games = {};
+var games = {
+  [Symbol.iterator]: function* () {
+    for (let key in this) {
+      yield [key, this[key]] // yield [key, value] pair
+    }
+  },
+};
+
+
 
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
@@ -24,7 +32,10 @@ io.on('connection', (socket) => {
     socket.join(gameId);
     games[gameId] = {
       player1: [playerName, symbol],
-      player2: [], name: gameName,
+      player1Id: socket.id,
+      player2: null,
+      player2Id: null,
+      name: gameName,
       ready1: false,
       ready2: false,
       size: null,
@@ -37,8 +48,9 @@ io.on('connection', (socket) => {
 
   // Obsluha události připojení k existující hře
   socket.on('joinGame', (gameId, playerName) => {
-    if (games[gameId] && !games[gameId].player2[0]) {
-      games[gameId].player2.push(playerName);
+    if (games[gameId] && !games[gameId].player2) {
+      games[gameId].player2 = playerName;
+      games[gameId].player2Id = socket.id;
       socket.join(gameId);
       io.to(gameId).emit('playerJoined', playerName, games[gameId].name);
       console.log(`${playerName} joined ${games[gameId].name}(${gameId}).`)
@@ -66,10 +78,6 @@ io.on('connection', (socket) => {
     }
   })
 
-  // Obsluha události odpojení klienta
-  socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
-  });
 
   socket.on('play', (gameId, cellId) => {
     io.to(gameId).emit('play', cellId);
@@ -93,6 +101,50 @@ io.on('connection', (socket) => {
     io.to(gameId).emit('reset');
     console.log(`Room ${games[gameId].name}(${gameId}) reseted.`)
   })
+
+  socket.on('dis', (gameId, master) => {
+    if (master) {
+      games[gameId].player1[0] = games[gameId].player2
+      games[gameId].player1Id = games[gameId].player2Id
+    }
+    socket.leave(gameId);
+    games[gameId].player2 = null;
+    games[gameId].score = [0, 0];
+    games[gameId].player2Id = null;
+    games[gameId].ready1 = false;
+    games[gameId].ready2 = false;
+    games[gameId].size = null;
+    games[gameId].wSize = null;
+    io.to(gameId).emit('dis')
+  })
+
+  socket.on('disconnecting', () => {
+    for (const game of games) {
+      if (game[1].player1Id == socket.id || game[1].player2Id == socket.id) {
+        let gameId = game[0]
+
+        if (games[gameId].player1Id == socket.id) {
+          games[gameId].player1[0] = games[gameId].player2
+          games[gameId].player1Id = games[gameId].player2Id
+        }
+        socket.leave(gameId);
+        games[gameId].player2 = null;
+        games[gameId].score = [0, 0];
+        games[gameId].player2Id = null;
+        games[gameId].ready1 = false;
+        games[gameId].ready2 = false;
+        games[gameId].size = null;
+        games[gameId].wSize = null;
+        io.to(gameId).emit('dis')
+      }
+    };
+  })
+
+  // Obsluha události odpojení klienta
+  socket.on('disconnect', () => {
+
+    console.log('Client disconnected:', socket.id);
+  });
 });
 
 // Funkce pro generování náhodného ID hry

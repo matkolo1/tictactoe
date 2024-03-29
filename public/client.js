@@ -35,10 +35,13 @@ socket.on("gameCreated", (gameId) => {
   var url = window.location.href.split("index")[0];
   const joinUrl = url + "index.html?gameId=" + gameId;
   console.log("Join URL:", joinUrl);
-  let cp = document.createElement('input')
-  cp.type = 'text';
-  cp.setAttribute('readonly', 'readonly');
-  cp.id = 'copyUrl';
+  let cp;
+  if (!document.getElementById('copyUrl')) {
+    cp = document.createElement('input');
+    cp.type = 'text';
+    cp.setAttribute('readonly', 'readonly');
+    cp.id = 'copyUrl';
+  } else cp = document.getElementById('copyUrl')
   cp.value = joinUrl
   document.getElementById('master').appendChild(cp);
   game.gameId = gameId;
@@ -108,15 +111,12 @@ socket.on('noexist', (gameId) => {
   document.getElementById("info").innerHTML = `Game ${gameId} doesn't exist.`;
 });
 
-
-
 socket.on("start", (games) => {
   startPlayer = game.playerName
   games = JSON.parse(games);
   console.log(game.gameName, game.gameId, "starting game");
-  console.log(master, games)
   if (master) {
-    game.enemyName = games.player2[0];
+    game.enemyName = games.player2;
     if ((games.player1[1] == "O")) {
       game.start = 1;
       startPlayer = game.enemyName
@@ -130,13 +130,15 @@ socket.on("start", (games) => {
   }
   size = games.size;
   winSize = games.wSize;
-  console.log(games.size, size, games.wSize, winSize)
   document.getElementById("lobby").style.display = "none";
   document.getElementById("ready").style.display = "none";
   document.getElementById('master').style.display = 'none';
   document.getElementById("game").style.display = "flex";
+  document.getElementById('p1').innerHTML = `${games.player1[0]}`;
+  document.getElementById('p2').innerHTML = `${games.player2}`;
+  document.getElementById('score').innerHTML = `${games.score[0]}:${games.score[1]}`;
   if (master) document.getElementById('resetBtn').style.display = 'block';
-  console.log(`gridTemplateColumns: repeat(${size}, 50px);`)
+  document.getElementById('info').style.display = 'none';
   document.getElementById("grid").style = `grid-template-columns: repeat(${size}, 50px);`;
   createGrid(grid);
   addClickListeners(grid);
@@ -144,6 +146,7 @@ socket.on("start", (games) => {
 
 socket.on('win', (score) => {
   game.score = score
+  document.getElementById('score').innerHTML = `${score[0]}:${score[1]}`
 })
 
 socket.on('reset', () => {
@@ -152,7 +155,7 @@ socket.on('reset', () => {
   turns = 0;
   createGrid()
   addClickListeners()
-  
+
 })
 
 function s() {
@@ -164,6 +167,79 @@ function s() {
 function rst() {
   socket.emit('reset', game.gameId)
 }
+
+function dis() {
+  socket.emit('dis', game.gameId, master)
+  document.getElementById("lobby").style.display = "block";
+  document.getElementById('master').style.display = 'none';
+  document.getElementById("game").style.display = "none";
+  if (master) document.getElementById('resetBtn').style.display = 'none';
+  document.getElementById('info').style.display = 'block';
+  document.getElementById('info').innerHTML = 'Succesfully disconnected.';
+  master = true;
+  ready = false;
+  game = {
+    gameId: null,
+    gameName: null,
+    playerName: null,
+    enemyName: null,
+    start: 0,
+    score: [0, 0]
+  };
+  board = [];
+  playerTurn = 0;
+  playerTurnSymbol = "O";
+  playerTurnSymbol2 = "X";
+  size = 3;
+  winSize = 3;
+  turns = 0;
+  startPlayer = null;
+  document.getElementById('grid').innerHTML = '';
+}
+
+socket.on('dis', () => {
+  document.getElementById("lobby").style.display = "block";
+  document.getElementById('master').style.display = 'block';
+  document.getElementById("game").style.display = "none";
+  if (master) document.getElementById('resetBtn').style.display = 'none';
+  document.getElementById('info').style.display = 'block';
+  document.getElementById('info').innerHTML = `${game.enemyName} disconnected.`;
+  master = true;
+  ready = false;
+  game.enemyName = null
+  game.start = 0
+  game.score = [0, 0];
+  board = [];
+  playerTurn = 0;
+  playerTurnSymbol = "O";
+  playerTurnSymbol2 = "X";
+  size = 3;
+  winSize = 3;
+  turns = 0;
+  startPlayer = null;
+
+  var url = window.location.href.split("index")[0];
+  const joinUrl = url + "index.html?gameId=" + game.gameId;
+  console.log("Join URL:", joinUrl);
+  let cp;
+  if (!document.getElementById('copyUrl')) {
+    cp = document.createElement('input');
+    cp.type = 'text';
+    cp.setAttribute('readonly', 'readonly');
+    cp.id = 'copyUrl';
+  } else cp = document.getElementById('copyUrl')
+  cp.value = joinUrl
+  document.getElementById('master').appendChild(cp);
+  document.getElementById('master').style.display = 'block';
+  document.getElementById('grid').innerHTML = '';
+
+  // Zde můžete provést další manipulace s odkazem (např. zobrazení na stránce)
+
+  // Copy the text inside the text field
+  document.getElementById('copyUrl').addEventListener('click', () => {
+    navigator.clipboard.writeText(joinUrl);
+  });
+})
 
 // tic tac toe script
 
@@ -210,7 +286,6 @@ socket.on('play', (cellId) => {
       document.getElementById("turn").innerHTML = `Player ${game.playerName} is playing.`;
       initializeBoard(c);
       checkWin(board, c);
-      console.log(c.id, `cell-${cell[1]}-${cell[2]}`)
     }
   }
 });
@@ -221,7 +296,6 @@ function addClickListeners() {
   document.getElementById("turn").innerHTML = `Player ${startPlayer} is playing.`;
   for (const cell of cells) {
     cell.addEventListener("click", function () {
-      console.log('clicked', cell.id)
       if (!this.classList.contains("clicked")) {
         if (playerTurn == game.start) {
           this.classList.add("clicked");
@@ -295,7 +369,7 @@ function checkWin(board, cell) {
         if (master && !win) {
           socket.emit('win', game.gameId, true, false);
         }
-      } else if (!win){
+      } else if (!win) {
         document.getElementById("grid").innerHTML = `Player ${game.playerName} Wins!!`;
         if (master) {
           socket.emit('win', game.gameId, true, true);
