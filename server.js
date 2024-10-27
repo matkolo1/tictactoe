@@ -117,7 +117,7 @@ io.on('connection', (socket) => {
     games[gameId].wSize = null;
     io.to(gameId).emit('dis')
   })
-
+  
   socket.on('disconnecting', () => {
     for (const game of games) {
       if (game[1].player1Id == socket.id || game[1].player2Id == socket.id) {
